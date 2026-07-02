@@ -3,208 +3,141 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Angle of Attack — Geometry Artillery</title>
+<title>Angle of Attack — Geometry Artillery Duel</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-@font-face{font-family:'Chalk';src:local('Segoe Print'),local('Comic Sans MS'),local('cursive')}
 body{
-  background:#1a2a20;
-  display:flex;justify-content:center;align-items:center;
-  min-height:100vh;font-family:'Chalk',cursive,serif;overflow:hidden;
+  background:#1a1a1a;display:flex;justify-content:center;align-items:center;
+  min-height:100vh;font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;
   user-select:none;-webkit-user-select:none;
 }
 #app{
-  position:relative;width:min(98vw,1400px);
-  background:#2d4a3e;
-  border-radius:12px;
-  box-shadow:0 0 60px rgba(0,0,0,.7),inset 0 0 40px rgba(0,0,0,.3);
-  border:18px solid #3d2b1a;
-  border-image:linear-gradient(135deg,#5a3a1a,#3d2b1a,#5a3a1a) 1;
-  overflow:hidden;
+  position:relative;width:min(98vw,1100px);
+  background:#1e2d24;border-radius:10px;
+  box-shadow:0 0 50px rgba(0,0,0,.8);
+  border:3px solid #3d5a3e;overflow:hidden;
 }
-#app::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 30% 40%,rgba(255,255,255,.03) 0%,transparent 70%);
-  pointer-events:none;z-index:1;
-}
-#game-canvas{
-  display:block;width:100%;height:auto;
-  background:#2d4a3e;cursor:crosshair;
-  filter:url(#chalk-filter);
-}
-/* SVG filter for chalk texture */
-svg{position:absolute;width:0;height:0}
+canvas{display:block;width:100%;background:#1e2d24;cursor:crosshair}
 /* Top bar */
 #top-bar{
   display:flex;justify-content:space-between;align-items:center;
-  padding:6px 14px;background:rgba(0,0,0,.25);
-  border-bottom:1px solid rgba(255,255,255,.08);
-  color:#e8e0cc;font-size:13px;
-}
-#top-bar .title{font-size:18px;font-weight:bold;letter-spacing:2px;color:#f5f5dc}
-#top-bar .level-name{color:#87ceeb;font-size:14px}
-#top-bar .concept{color:#ffd700;font-size:12px;font-style:italic}
-/* Toolbar */
-#toolbar{
-  display:flex;gap:4px;padding:6px 10px;
-  background:rgba(0,0,0,.2);
+  padding:6px 14px;background:rgba(0,0,0,.35);color:#d4d0b8;font-size:13px;
   border-bottom:1px solid rgba(255,255,255,.06);
-  flex-wrap:wrap;align-items:center;
 }
-.tool-btn{
-  padding:5px 12px;border:1px solid rgba(255,255,255,.15);
-  background:rgba(255,255,255,.06);color:#e8e0cc;
-  cursor:pointer;font-family:inherit;font-size:13px;
-  border-radius:4px;transition:all .15s;
-}
-.tool-btn:hover{background:rgba(255,255,255,.12)}
-.tool-btn.active{background:rgba(135,206,235,.2);border-color:#87ceeb;color:#87ceeb}
-.tool-btn .icon{font-size:16px;margin-right:4px}
-.tool-btn .label{font-size:12px}
-#toolbar .sep{width:1px;height:22px;background:rgba(255,255,255,.1);margin:0 6px}
-/* Controls panel */
+#top-bar .title{font-size:17px;font-weight:700;color:#f0e8c8;letter-spacing:1px}
+#top-bar .turn-indicator{padding:3px 12px;border-radius:4px;font-size:13px;font-weight:600}
+.turn-p1{background:rgba(100,180,255,.2);color:#64b4ff}
+.turn-p2{background:rgba(255,100,100,.2);color:#ff6464}
+#top-bar .turn-p1, #top-bar .turn-p2{font-size:13px;font-weight:600}
+/* Controls */
 #controls{
-  display:flex;gap:16px;padding:8px 14px;
-  background:rgba(0,0,0,.2);align-items:center;
-  flex-wrap:wrap;
+  display:flex;gap:12px;padding:8px 14px;
+  background:rgba(0,0,0,.25);align-items:center;flex-wrap:wrap;
 }
-.ctrl-group{display:flex;align-items:center;gap:6px;color:#e8e0cc;font-size:13px}
-.ctrl-group label{color:rgba(255,255,255,.5);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.ctrl-group{display:flex;align-items:center;gap:5px;color:#d4d0b8;font-size:13px}
+.ctrl-group label{color:rgba(255,255,255,.4);font-size:10px;text-transform:uppercase;letter-spacing:1px}
 .ctrl-group input[type=range]{
-  -webkit-appearance:none;width:100px;height:4px;
-  background:rgba(255,255,255,.15);border-radius:2px;outline:none;
+  -webkit-appearance:none;width:90px;height:4px;
+  background:rgba(255,255,255,.12);border-radius:2px;outline:none;
 }
 .ctrl-group input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:14px;height:14px;
-  border-radius:50%;background:#f5f5dc;cursor:pointer;
+  -webkit-appearance:none;width:13px;height:13px;border-radius:50%;
+  background:#f0e8c8;cursor:pointer;
 }
-.ctrl-group .value{min-width:40px;text-align:center;color:#87ceeb;font-weight:bold;font-size:14px}
+.ctrl-group .value{min-width:36px;text-align:center;font-weight:700;font-size:14px}
 #fire-btn{
-  padding:6px 28px;border:2px solid #ff6b6b;
-  background:rgba(255,107,107,.15);color:#ff6b6b;
-  font-family:inherit;font-size:16px;font-weight:bold;
-  cursor:pointer;border-radius:4px;transition:all .15s;
-  letter-spacing:2px;
+  padding:6px 24px;border:2px solid #ff6b4a;
+  background:rgba(255,107,74,.12);color:#ff6b4a;
+  font-family:inherit;font-size:15px;font-weight:700;
+  cursor:pointer;border-radius:5px;transition:all .15s;letter-spacing:1px;
 }
-#fire-btn:hover{background:rgba(255,107,107,.25)}
+#fire-btn:hover{background:rgba(255,107,74,.25)}
 #fire-btn:disabled{opacity:.3;cursor:not-allowed}
-/* Feedback panel */
-#feedback{
+#new-game-btn{
+  padding:5px 14px;border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.06);color:#d4d0b8;
+  font-family:inherit;font-size:12px;cursor:pointer;border-radius:4px;
+}
+#new-game-btn:hover{background:rgba(255,255,255,.12)}
+#wind-display{color:rgba(255,255,255,.5);font-size:12px;margin-left:auto}
+#wind-display .val{font-weight:700}
+/* Result overlay */
+#result{
   position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);
-  background:rgba(0,0,0,.85);border:1px solid rgba(255,255,255,.1);
-  border-radius:8px;padding:20px 28px;
-  color:#e8e0cc;font-size:14px;z-index:10;
-  min-width:320px;max-width:500px;
-  display:none;text-align:center;
+  background:rgba(0,0,0,.88);border:2px solid rgba(255,255,255,.1);
+  border-radius:10px;padding:22px 30px;color:#d4d0b8;
+  z-index:10;display:none;text-align:center;min-width:280px;
+  backdrop-filter:blur(4px);
 }
-#feedback .fb-title{font-size:20px;margin-bottom:8px}
-#fb-next-btn{
-  margin-top:12px;padding:6px 20px;
-  background:rgba(255,215,0,.15);border:1px solid #ffd700;
-  color:#ffd700;font-family:inherit;font-size:14px;
-  cursor:pointer;border-radius:4px;
+#result .r-title{font-size:22px;margin-bottom:6px}
+#result .r-body{font-size:14px;margin-bottom:4px;line-height:1.5}
+#result .r-proximity{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:10px}
+#result button{
+  padding:6px 20px;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);color:#d4d0b8;
+  font-family:inherit;font-size:13px;cursor:pointer;border-radius:4px;margin-top:4px;
 }
-/* Lesson card */
-#lesson-card{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  background:rgba(0,0,0,.9);border:2px solid #ffd700;
-  border-radius:10px;padding:24px 30px;
-  color:#e8e0cc;z-index:20;display:none;
-  max-width:520px;text-align:center;
+#result button:hover{background:rgba(255,255,255,.15)}
+/* Geometry sidebar */
+#geo-help{
+  position:absolute;bottom:55px;right:8px;z-index:5;
+  padding:6px 10px;font-size:10px;color:rgba(255,255,255,.3);
+  background:rgba(0,0,0,.3);border-radius:4px;border:none;
+  font-family:inherit;cursor:pointer;display:none;
 }
-#lesson-card .lc-title{color:#ffd700;font-size:22px;margin-bottom:6px}
-#lesson-card .lc-concept{color:#87ceeb;font-size:14px;font-style:italic;margin-bottom:12px}
-#lesson-card .lc-body{font-size:14px;line-height:1.6;text-align:left;margin-bottom:12px}
-#lesson-card .lc-real{font-size:12px;color:rgba(255,255,255,.4);font-style:italic;padding-top:8px;border-top:1px solid rgba(255,255,255,.1)}
-#lc-close-btn{
-  padding:6px 20px;background:rgba(255,215,0,.15);
-  border:1px solid #ffd700;color:#ffd700;
-  font-family:inherit;font-size:14px;cursor:pointer;border-radius:4px;margin-top:8px;
+#geo-help:hover{color:rgba(255,255,255,.6)}
+#geo-panel{
+  position:absolute;bottom:55px;right:8px;z-index:6;
+  background:rgba(0,0,0,.85);border:1px solid rgba(255,215,0,.2);
+  border-radius:6px;padding:10px 14px;color:#d4d0b8;font-size:11px;
+  display:none;min-width:180px;line-height:1.5;
 }
-/* Ghost geometry toggle */
-#ghost-toggle{
-  position:absolute;bottom:60px;right:10px;z-index:5;
-  padding:4px 10px;font-size:11px;
-  border:1px solid rgba(255,215,0,.3);background:rgba(255,215,0,.08);
-  color:#ffd700;font-family:inherit;cursor:pointer;border-radius:4px;
-  display:none;
+#geo-panel .gp-title{color:#ffd700;font-size:12px;font-weight:600;margin-bottom:4px}
+#geo-panel .gp-row{display:flex;justify-content:space-between;gap:10px}
+#geo-panel .gp-label{color:rgba(255,255,255,.4)}
+#geo-panel .gp-val{color:#87ceeb;font-weight:600}
+#geo-panel button{
+  margin-top:6px;padding:3px 10px;font-size:10px;
+  border:1px solid rgba(255,215,0,.2);background:rgba(255,215,0,.08);
+  color:#ffd700;font-family:inherit;cursor:pointer;border-radius:3px;width:100%;
 }
-/* Score display */
-#score-bar{
-  position:absolute;top:40px;right:10px;z-index:5;
-  padding:6px 12px;background:rgba(0,0,0,.5);
-  border-radius:6px;color:#e8e0cc;font-size:12px;text-align:right;
-  display:none;
-}
-#score-bar .shots{color:#87ceeb;font-weight:bold}
-/* Message toast */
+/* Message */
 #message{
-  position:absolute;top:15%;left:50%;transform:translateX(-50%);
-  color:#f5f5dc;font-size:16px;z-index:8;
-  background:rgba(0,0,0,.6);padding:8px 20px;border-radius:6px;
+  position:absolute;top:14%;left:50%;transform:translateX(-50%);
+  color:#f0e8c8;font-size:15px;z-index:8;
+  background:rgba(0,0,0,.6);padding:6px 16px;border-radius:5px;
   opacity:0;transition:opacity .3s;pointer-events:none;text-align:center;
 }
-/* Level complete overlay */
-#level-complete{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  background:rgba(0,0,0,.88);border:2px solid #ffd700;
-  border-radius:12px;padding:30px 36px;color:#e8e0cc;
-  z-index:30;display:none;text-align:center;min-width:350px;
+/* History */
+#history{
+  position:absolute;top:38px;right:8px;z-index:5;
+  background:rgba(0,0,0,.5);border-radius:5px;padding:6px 10px;
+  color:#d4d0b8;font-size:11px;min-width:110px;display:none;text-align:right;
 }
-#level-complete .lc-title{color:#ffd700;font-size:26px;margin-bottom:4px}
-#level-complete .lc-sub{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:14px}
-#level-complete .lc-stat{font-size:13px;margin:4px 0}
-#level-complete .lc-stat .num{color:#87ceeb;font-weight:bold}
-#lc-next-btn{
-  margin-top:14px;padding:8px 24px;
-  background:rgba(135,206,235,.15);border:1px solid #87ceeb;
-  color:#87ceeb;font-family:inherit;font-size:16px;
-  cursor:pointer;border-radius:4px;
-}
-/* Mobile responsive */
-@media(max-width:700px){
-  #top-bar{padding:4px 8px;font-size:11px;flex-wrap:wrap;gap:2px}
+#history .hist-title{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-bottom:2px}
+#history .hist-entry{padding:1px 0;font-size:10px}
+@media(max-width:600px){
+  #controls{gap:6px;padding:6px 8px}
+  .ctrl-group input[type=range]{width:55px}
+  #fire-btn{padding:4px 14px;font-size:13px}
+  #top-bar{padding:4px 8px;font-size:11px}
   #top-bar .title{font-size:14px}
-  .tool-btn{padding:3px 8px;font-size:11px}
-  #controls{padding:6px 8px;gap:8px}
-  .ctrl-group input[type=range]{width:60px}
-  #fire-btn{padding:4px 16px;font-size:14px}
-  #feedback{min-width:260px;max-width:90vw;padding:14px 16px;font-size:13px}
-  #lesson-card{max-width:90vw;padding:16px 18px}
-  #level-complete{min-width:280px;padding:20px 24px}
+  #result{min-width:240px;padding:16px 20px}
 }
 </style>
 </head>
 <body>
 
-<!-- SVG Chalk Filter -->
-<svg><filter id="chalk-filter">
-  <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise"/>
-  <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
-  <feBlend mode="hard-light" in="SourceGraphic" in2="grayNoise"/>
-  <feComponentTransfer><feFuncA type="linear" slope="0.3"/></feComponentTransfer>
-</filter></svg>
-
 <div id="app">
 
   <!-- Top Bar -->
   <div id="top-bar">
-    <span class="title">🧮 ANGLE OF ATTACK</span>
-    <span class="level-name" id="level-name-display">Level 1: Flat Range</span>
-    <span class="concept" id="concept-display">Complementary Angles</span>
-    <span style="font-size:11px;color:rgba(255,255,255,.3)" id="rank-display">Recruit</span>
-  </div>
-
-  <!-- Toolbar -->
-  <div id="toolbar">
-    <button class="tool-btn" data-tool="angle" title="Angle Finder (A)"><span class="icon">📐</span><span class="label">Angle</span></button>
-    <button class="tool-btn" data-tool="ruler" title="Ruler (R)"><span class="icon">📏</span><span class="label">Ruler</span></button>
-    <button class="tool-btn" data-tool="protractor" title="Protractor (P)"><span class="icon">◯</span><span class="label">Protractor</span></button>
-    <div class="sep"></div>
-    <button class="tool-btn" data-tool="grid" title="Toggle Grid (G)"><span class="icon">⊞</span><span class="label">Grid</span></button>
-    <button class="tool-btn" id="clear-btn" title="Clear Marks (C)"><span class="icon">🧹</span><span class="label">Clear</span></button>
-    <div class="sep"></div>
-    <button class="tool-btn" id="hint-btn" title="Hint (H)"><span class="icon">💡</span><span class="label">Hint</span></button>
+    <span class="title">🎯 ANGLE OF ATTACK</span>
+    <span id="turn-display" class="turn-p1">🔵 Player 1's Turn</span>
+    <span id="score-display" style="font-size:12px;color:rgba(255,255,255,.3)">
+      P1: <span id="p1-wins" style="color:#64b4ff">0</span>
+      &nbsp;P2: <span id="p2-wins" style="color:#ff6464">0</span>
+    </span>
   </div>
 
   <!-- Game Canvas -->
@@ -214,51 +147,45 @@ svg{position:absolute;width:0;height:0}
   <div id="controls">
     <div class="ctrl-group">
       <label>Angle</label>
-      <input type="range" id="angle-slider" min="0" max="90" value="30" step="0.5">
-      <span class="value" id="angle-display">30°</span>
+      <input type="range" id="angle-slider" min="1" max="89" value="45" step="0.5">
+      <span class="value" id="angle-display" style="color:#87ceeb">45°</span>
     </div>
     <div class="ctrl-group">
-      <label>Powder</label>
-      <input type="range" id="powder-slider" min="10" max="100" value="100" step="1">
-      <span class="value" id="powder-display">100%</span>
-    </div>
-    <div class="ctrl-group" style="color:rgba(255,255,255,.4);font-size:12px">
-      Est. Range: <span id="est-range" style="color:#87ceeb">---</span>m
+      <label>Speed</label>
+      <input type="range" id="speed-slider" min="10" max="100" value="50" step="1">
+      <span class="value" id="speed-display" style="color:#87ceeb">50</span>
     </div>
     <button id="fire-btn">🔥 FIRE</button>
+    <button id="new-game-btn">🔄 New Round</button>
+    <span id="wind-display">💨 Wind: <span class="val" id="wind-val">0 →</span></span>
   </div>
 
-  <!-- Feedback Overlay -->
-  <div id="feedback">
-    <div class="fb-title" id="fb-title">MISS</div>
-    <div id="fb-body"></div>
-    <button id="fb-next-btn">Continue</button>
+  <!-- Result Overlay -->
+  <div id="result">
+    <div class="r-title" id="r-title">MISS</div>
+    <div class="r-body" id="r-body"></div>
+    <div class="r-proximity" id="r-prox"></div>
+    <button id="r-ok-btn">OK</button>
   </div>
 
-  <!-- Lesson Card -->
-  <div id="lesson-card">
-    <div class="lc-title" id="lc-title">📖 Complementary Angles</div>
-    <div class="lc-concept" id="lc-concept">Geometry Concept</div>
-    <div class="lc-body" id="lc-body"></div>
-    <div class="lc-real" id="lc-real"></div>
-    <button id="lc-close-btn">Got it!</button>
+  <!-- Geometry Panel -->
+  <button id="geo-help">📐 Geometry</button>
+  <div id="geo-panel">
+    <div class="gp-title">📐 Shot Analysis</div>
+    <div class="gp-row"><span class="gp-label">Launched at:</span><span class="gp-val" id="gp-angle">45°</span></div>
+    <div class="gp-row"><span class="gp-label">Launch speed:</span><span class="gp-val" id="gp-speed">50 m/s</span></div>
+    <div class="gp-row"><span class="gp-label">Travel time:</span><span class="gp-val" id="gp-time">--</span></div>
+    <div class="gp-row"><span class="gp-label">Max height:</span><span class="gp-val" id="gp-height">--</span></div>
+    <div class="gp-row"><span class="gp-label">Range (flat):</span><span class="gp-val" id="gp-range">--</span></div>
+    <div class="gp-row"><span class="gp-label">Distance to target:</span><span class="gp-val" id="gp-target-dist">--</span></div>
+    <button id="gp-close-btn">Close</button>
   </div>
 
-  <!-- Level Complete -->
-  <div id="level-complete">
-    <div class="lc-title" id="lv-title">🎖 TARGET DESTROYED!</div>
-    <div class="lc-sub" id="lv-sub">Level Complete</div>
-    <div class="lc-stat">Shots taken: <span class="num" id="lv-shots">3</span></div>
-    <div class="lc-stat" id="lv-rank-display">Rank: <span class="num" id="lv-rank">Bronze</span></div>
-    <div class="lc-stat" style="font-size:11px;color:rgba(255,255,255,.3)" id="lv-next-hint"></div>
-    <button id="lc-next-btn">Next Level ➜</button>
+  <!-- History -->
+  <div id="history">
+    <div class="hist-title">Shot History</div>
+    <div id="hist-entries"></div>
   </div>
-
-  <!-- Ghost Toggle -->
-  <button id="ghost-toggle">👻 Show Solution</button>
-
-  <!-- Score Bar -->
-  <div id="score-bar">Shots: <span class="shots" id="shots-count">0</span></div>
 
   <!-- Message -->
   <div id="message"></div>
@@ -267,445 +194,328 @@ svg{position:absolute;width:0;height:0}
 
 <script>
 // ============================================================
-// ANGLE OF ATTACK — Complete Game
+// ANGLE OF ATTACK — Two-Player Artillery Duel
 // ============================================================
 
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 
 // --- Dimensions ---
-const W = 1200, H = 700;
+const W = 1100, H = 620;
 canvas.width = W; canvas.height = H;
 
 // --- Constants ---
 const G = 9.81;
-const BASE_VEL = 70; // m/s at 100% powder
-const SCALE = 1.2;  // pixels per meter
-const ORIGIN_X = 150; // cannon x in screen coords
-const GROUND_Y = H - 80;
+const PLAYER_RADIUS = 10;
+const IMPACT_RADIUS = 18;
 
 // --- State ---
 let state = {
-  phase: 'aiming',   // aiming | firing | result | lesson
-  angle: 30,
-  powder: 100,
-  level: 0,
-  shots: 0,
-  bestShots: Infinity,
-  gridOn: true,
-  ghostVisible: false,
-  ghostAvailable: false,
-  hasHit: false,
-  tools: {
-    active: null,
-    measuring: false,
-    start: null,
-    end: null,
-    marks: []
-  },
+  phase: 'aiming', // aiming | firing | result | gameover
+  currentPlayer: 1,
+  p1: { x: 0, y: 0, angle: 45, speed: 50, lives: 3 },
+  p2: { x: 0, y: 0, angle: 45, speed: 50, lives: 3 },
+  terrain: [],
+  wind: 0,
   shell: null,
   trail: [],
-  chalkMarks: [],
-  hintLevel: 0,
-  feedback: null
+  history: [],
+  round: 1,
+  p1Wins: 0,
+  p2Wins: 0,
+  lastImpact: null,
+  showGeo: false
 };
 
-// --- Level Definitions ---
-const LEVELS = [
-  { // Level 0 intro
-    id:0,name:'Welcome',concept:'Orientation',
-    desc:'Learn the controls. Flat terrain, stationary target at 350m.\nSet your angle and fire!',
-    hint:'Try 30° first, then adjust based on where it lands. 45° gives maximum range.',
-    terrain:[],wind:0,playerY:0,targetX:700,targetY:0,targetHeight:20,fixedPowder:100,
-    solutionAngle:27.5,ghostLines:[]
-  },
-  { // Level 1: Flat Range
-    id:1,name:'Flat Range',concept:'Complementary Angles',
-    desc:'Flat terrain, stationary target. Adjust your cannon angle to hit the target.\nThe angle and 90° minus the angle are complementary — they sum to 90°.',
-    hint:'Start at 45° (max range). If you overshoot, lower the angle. If undershoot, raise it.\nThe correct angle for this distance is around 27-28°.',
-    terrain:[],wind:0,playerY:0,targetX:700,targetY:0,targetHeight:20,fixedPowder:100,
-    solutionAngle:27.5,ghostLines:[
-      {type:'arc',x:ORIGIN_X,y:GROUND_Y,radius:60,startAngle:0,endAngle:Math.PI/2,color:'gold'},
-      {type:'line',x1:ORIGIN_X,y1:GROUND_Y,x2:ORIGIN_X+50,y2:GROUND_Y,color:'gold'},
-      {type:'line',x1:ORIGIN_X,y1:GROUND_Y,x2:ORIGIN_X+44,y2:GROUND_Y-23,color:'gold'},
-      {type:'angle_label',x:ORIGIN_X+30,y:GROUND_Y-8,text:'θ',color:'gold'},
-      {type:'text',x:ORIGIN_X+20,y:GROUND_Y+18,text:'45° = max range → too far',color:'gold',size:10},
-      {type:'text',x:ORIGIN_X+20,y:GROUND_Y+32,text:'θ = 27.5° → HIT',color:'gold',size:11},
-    ]
-  },
-  { // Level 2: Know Your Distance
-    id:2,name:'Know Your Distance',concept:'Similar Triangles / Range Estimation',
-    desc:'The target is at an unknown distance. But it has a 5m tall flagpole.\nUse the RULER tool (📏) to measure its apparent height, then use similar triangles to find the range.\n(Hint: actual height / apparent height ratio = distance ratio)',
-    hint:'The flagpole is 5m tall. Measure its height on screen with the ruler.\nIf it appears as 20px and 1px = 0.5m on screen, then distance = (5m × pixel_scale) / apparent_height_px × focal_length...\nOr just try trial and error!',
-    terrain:[],wind:0,playerY:0,targetX:650,targetY:-30,targetHeight:30,fixedPowder:100,
-    targetFlagpole:true,flagpoleHeight:5,
-    solutionAngle:31.5,ghostLines:[
-      {type:'line',x1:ORIGIN_X,y1:GROUND_Y,x2:650,y2:GROUND_Y-30,color:'gold',dash:true},
-      {type:'line',x1:ORIGIN_X,y1:GROUND_Y,x2:650,y2:GROUND_Y,color:'gold',dash:true},
-      {type:'line',x1:650,y1:GROUND_Y,x2:650,y2:GROUND_Y-30,color:'gold',dash:true},
-      {type:'text',x:400,y:GROUND_Y-50,text:'opposite = 30m',color:'gold',size:10},
-      {type:'text',x:400,y:GROUND_Y+16,text:'adjacent = 325m',color:'gold',size:10},
-      {type:'text',x:660,y:GROUND_Y-16,text:'5m',color:'gold',size:9},
-    ]
-  },
-  { // Level 3: Two Paths
-    id:3,name:'The Perfect Arc',concept:'Low Angle vs High Angle',
-    desc:'The target is at 380m. There are TWO angles that can hit it!\nFind the LOW angle (~15-25°) AND the HIGH angle (~65-75°).\nEvery distance has two solutions (except max range at 45°).',
-    hint:'Try 22° for the low shot. The high shot will be 90° minus the low shot angle.\nThe two solutions are symmetric around 45°!',
-    terrain:[{x:300,w:200,h:30}],wind:0,playerY:0,targetX:680,targetY:-10,targetHeight:20,fixedPowder:100,
-    solutionAngle:22.8,ghostLines:[
-      {type:'arc',x1:ORIGIN_X,y1:GROUND_Y,x2:680,y2:GROUND_Y-10,color:'#87ceeb',label:'Low: 22.8°'},
-      {type:'arc',x1:ORIGIN_X,y1:GROUND_Y,x2:680,y2:GROUND_Y-10,color:'#ff6b6b',label:'High: 67.2°'},
-      {type:'text',x:400,y:GROUND_Y-120,text:'Two angles → Same distance!',color:'gold',size:13},
-      {type:'text',x:400,y:GROUND_Y-104,text:'Low + High = 90° (complementary)',color:'gold',size:11},
-    ]
-  },
-  { // Level 4: Uphill Battle
-    id:4,name:'Uphill Battle',concept:'Angle of Elevation',
-    desc:'The target is on a hill 55m above you, 320m away horizontally.\nYou must account for the ELEVATION. Aim steeper than you would on flat ground.\nUse the protractor to measure the angle of elevation to the target.',
-    hint:'On flat ground you\'d use ~35° for this distance.\nBecause the target is uphill, you need a STEEPER angle. Try 42-44°.',
-    terrain:[{x:350,w:450,h:55}],wind:0,playerY:0,targetX:650,targetY:-55,targetHeight:20,fixedPowder:100,
-    solutionAngle:43.5,ghostLines:[
-      {type:'line',x1:ORIGIN_X,y1:GROUND_Y,x2:650,y2:GROUND_Y,color:'gold',dash:true},
-      {type:'line',x1:650,y1:GROUND_Y,x2:650,y2:GROUND_Y-55,color:'gold',dash:true},
-      {type:'line',x1:ORIGIN_X,y1:GROUND_Y,x2:650,y2:GROUND_Y-55,color:'gold',dash:true},
-      {type:'text',x:400,y:GROUND_Y+16,text:'adjacent = 320m',color:'gold',size:10},
-      {type:'text',x:660,y:GROUND_Y-28,text:'opposite = 55m',color:'gold',size:10},
-      {type:'text',x:350,y:GROUND_Y-80,text:'θ = arctan(55/320) ≈ 9.7°',color:'gold',size:10},
-      {type:'text',x:350,y:GROUND_Y-66,text:'Need steeper: aim at 43.5°',color:'gold',size:11},
-    ]
-  },
-  { // Level 5: Valley Shot
-    id:5,name:'Valley Shot',concept:'Angle of Depression',
-    desc:'The target is in a valley 45m below you, 300m away.\nThis is the opposite of Uphill Battle — the ANGLE OF DEPRESSION.\nYou need a SHALLOWER angle than flat ground.',
-    hint:'On flat ground you\'d use ~38° for this distance.\nBecause the target is DOWNHILL, you need a SHALLOWER angle. Try 30-33°.',
-    terrain:[{x:200,w:200,h:-10},{x:450,w:400,h:-45}],wind:0,playerY:-10,targetX:680,targetY:-45,targetHeight:20,fixedPowder:100,
-    solutionAngle:31.5,ghostLines:[
-      {type:'line',x1:ORIGIN_X,y1:GROUND_Y-10,x2:680,y2:GROUND_Y-10,color:'gold',dash:true},
-      {type:'line',x1:680,y1:GROUND_Y-10,x2:680,y2:GROUND_Y-45,color:'gold',dash:true},
-      {type:'line',x1:ORIGIN_X,y1:GROUND_Y-10,x2:680,y2:GROUND_Y-45,color:'gold',dash:true},
-      {type:'text',x:400,y:GROUND_Y-6,text:'adjacent = 300m',color:'gold',size:10},
-      {type:'text',x:685,y:GROUND_Y-28,text:'opposite = 35m',color:'gold',size:10},
-      {type:'text',x:350,y:GROUND_Y-58,text:'Need shallower: aim at 31.5°',color:'gold',size:11},
-    ]
-  }
-];
-
-// --- Terrain definition ---
-function getTerrainHeight(x, level) {
-  const lvl = LEVELS[level];
-  if (!lvl || !lvl.terrain || lvl.terrain.length === 0) return lvl.playerY || 0;
-  let h = lvl.playerY || 0;
-  for (const t of lvl.terrain) {
-    if (x >= t.x && x <= t.x + t.w) {
-      h = t.h;
-    }
-  }
-  // smooth transitions
-  for (const t of lvl.terrain) {
-    const edge = 40;
-    if (x >= t.x - edge && x < t.x) {
-      const t2 = (x - (t.x - edge)) / edge;
-      h = h + (t.h - h) * t2 * 0.5;
-    }
-    if (x > t.x + t.w && x <= t.x + t.w + edge) {
-      const t2 = (x - (t.x + t.w)) / edge;
-      h = h + (t.h - h) * (1 - t2) * 0.5;
-    }
-  }
-  return h;
-}
-
-function worldToScreen(wx, wy, level) {
-  return { x: ORIGIN_X + wx * SCALE, y: GROUND_Y - wy * SCALE - getTerrainHeight(wx, level) * SCALE };
-}
-
-function screenToWorld(sx, sy, level) {
-  const wx = (sx - ORIGIN_X) / SCALE;
-  const wy = (GROUND_Y - sy) / SCALE - getTerrainHeight(wx, level);
-  return { x: wx, y: wy };
-}
-
-// --- Chalk Drawing Functions ---
-function chalkLine(x1, y1, x2, y2, opts = {}) {
-  const { color = '#f5f5dc', width = 2, dash = false, opacity = 0.85 } = opts;
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  ctx.globalAlpha = opacity;
-  ctx.lineCap = 'round';
-  if (dash) ctx.setLineDash([6, 4]);
-  else ctx.setLineDash([]);
-  ctx.beginPath(); ctx.moveTo(x1, y1);
-  // Add slight chalk jitter
-  const steps = Math.max(Math.round(Math.hypot(x2 - x1, y2 - y1) / 3), 4);
-  for (let i = 1; i <= steps; i++) {
-    const t = i / steps;
-    const jx = (Math.random() - 0.5) * 0.4;
-    const jy = (Math.random() - 0.5) * 0.4;
-    ctx.lineTo(x1 + (x2 - x1) * t + jx, y1 + (y2 - y1) * t + jy);
-  }
-  ctx.stroke();
-  ctx.restore();
-}
-
-function chalkArc(cx, cy, r, startA, endA, opts = {}) {
-  const { color = '#f5f5dc', width = 2, dash = false, opacity = 0.85 } = opts;
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  ctx.globalAlpha = opacity;
-  if (dash) ctx.setLineDash([5, 4]);
-  else ctx.setLineDash([]);
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, startA, endA);
-  ctx.stroke();
-  ctx.restore();
-}
-
-function chalkCircle(cx, cy, r, opts = {}) {
-  chalkArc(cx, cy, r, 0, Math.PI * 2, opts);
-}
-
-function chalkText(text, x, y, opts = {}) {
-  const { color = '#f5f5dc', size = 14, align = 'center', opacity = 0.9 } = opts;
-  ctx.save();
-  ctx.fillStyle = color;
-  ctx.font = `${size}px 'Chalk', cursive, serif`;
-  ctx.textAlign = align;
-  ctx.globalAlpha = opacity;
-  ctx.fillText(text, x, y);
-  ctx.restore();
-}
-
-// --- Physics Simulation ---
-function simulateShot(angle, powder, levelIdx) {
-  const lvl = LEVELS[levelIdx];
-  const angleRad = angle * Math.PI / 180;
-  const v0 = BASE_VEL * (powder / 100);
-  const wind = lvl.wind || 0;
-  const trail = [];
-  const dt = 0.016;
-
-  let wx = 0; // world x relative to cannon
-  let wy = 0; // world y relative to cannon (positive = up)
-  let vx = v0 * Math.cos(angleRad);
-  let vy = v0 * Math.sin(angleRad);
-  const playerY = lvl.playerY || 0;
-
-  let landed = false;
-  let hitTarget = false;
-  let impactX = 0, impactY = 0;
-  let maxY = 0;
-  const maxSteps = 600;
-  let step = 0;
-
-  while (step < maxSteps && !landed) {
-    vy -= G * dt;
-    vx += wind * dt;
-    wx += vx * dt;
-    wy += vy * dt;
-    step++;
-
-    const wxAbs = wx;
-    const wyAbs = wy; // + playerY is actual y position
-
-    // Check ground collision
-    const terrainH = getTerrainHeight(wxAbs, levelIdx) * SCALE;
-    const screenX = ORIGIN_X + wxAbs * SCALE;
-    const screenY = GROUND_Y - wyAbs * SCALE - playerY * SCALE - terrainH;
-
-    if (screenY > GROUND_Y - 5) {
-      landed = true;
-      impactX = screenX;
-      impactY = GROUND_Y;
-
-      // Check if target hit
-      const tgtX = ORIGIN_X + lvl.targetX;
-      const tgtY = GROUND_Y - lvl.targetY * SCALE - playerY * SCALE - getTerrainHeight(lvl.targetX / SCALE, levelIdx) * SCALE;
-      const dist = Math.abs(screenX - tgtX);
-      if (dist < 25) hitTarget = true;
-    }
-
-    if (wyAbs > maxY) maxY = wyAbs;
-
-    trail.push({ sx: screenX, sy: Math.min(screenY, GROUND_Y - 4), wx: wxAbs, wy: wyAbs });
-
-    if (screenX > W + 50 || screenX < -50) {
-      landed = true;
-      impactX = Math.max(0, Math.min(W, screenX));
-      impactY = GROUND_Y;
-    }
-  }
-
-  // Determine miss direction
-  let missDir = '';
-  const tgtX = ORIGIN_X + lvl.targetX;
-  const diff = impactX - tgtX;
-  if (Math.abs(diff) < 25) missDir = 'HIT';
-  else if (diff < 0) missDir = 'SHORT';
-  else missDir = 'LONG';
-
-  return { trail, impactX, impactY, hitTarget, missDir, diff: Math.round(diff * SCALE / 10) };
-}
-
-// --- Render Functions ---
-function drawChalkboardTexture() {
-  // Base green
-  ctx.fillStyle = '#2d4a3e';
-  ctx.fillRect(0, 0, W, H);
-
-  // Subtle noise overlay (chalkboard grain)
-  const imageData = ctx.getImageData(0, 0, W, H);
-  const data = imageData.data;
-  for (let i = 0; i < data.length; i += 4) {
-    const noise = (Math.random() - 0.5) * 12;
-    data[i] = Math.max(0, Math.min(255, data[i] + noise));
-    data[i+1] = Math.max(0, Math.min(255, data[i+1] + noise));
-    data[i+2] = Math.max(0, Math.min(255, data[i+2] + noise));
-  }
-  ctx.putImageData(imageData, 0, 0);
-}
-
-function drawGrid() {
-  if (!state.gridOn) return;
-  ctx.save();
-  const step = 50;
-  for (let x = 0; x <= W; x += step) {
-    chalkLine(x, 0, x, H, { color: 'rgba(255,255,255,0.06)', width: 0.5 });
-    if (x % (step * 2) === 0) {
-      chalkText(Math.round((x - ORIGIN_X) / SCALE) + 'm', x, H - 4, { color: 'rgba(255,255,255,0.1)', size: 8 });
-    }
-  }
-  for (let y = 0; y <= H; y += step) {
-    chalkLine(0, y, W, y, { color: 'rgba(255,255,255,0.06)', width: 0.5 });
-  }
-  ctx.restore();
-}
-
-function drawTerrain(levelIdx) {
-  const lvl = LEVELS[levelIdx];
-  if (!lvl) return;
-
-  // Draw ground line
-  ctx.save();
+// ============================================================
+// TERRAIN GENERATION
+// ============================================================
+function generateTerrain() {
   const pts = [];
-  for (let sx = 0; sx <= W; sx += 4) {
-    const wx = (sx - ORIGIN_X) / SCALE;
-    const th = getTerrainHeight(wx, levelIdx) * SCALE;
-    const sy = GROUND_Y - th - (lvl.playerY || 0) * SCALE;
-    pts.push({ sx, sy });
+  const segments = 60;
+  const step = W / segments;
+  const baseY = H * 0.55;
+  const amplitude = 80 + Math.random() * 60;
+
+  // Start low on left side
+  pts.push({ x: 0, y: baseY + 20 });
+
+  // Generate mountain profile
+  for (let i = 1; i < segments; i++) {
+    const x = i * step;
+    // Multiple sine waves for natural look
+    const h1 = Math.sin(i * 0.12 + Math.random() * 0.3) * amplitude * 0.7;
+    const h2 = Math.sin(i * 0.28 + Math.random() * 0.5) * amplitude * 0.4;
+    const h3 = Math.sin(i * 0.05) * amplitude * 0.3;
+    let y = baseY + h1 + h2 + h3;
+
+    // Ensure edges are lower (player areas)
+    const edgeFactor = Math.min(1, i / 8) * Math.min(1, (segments - i) / 8);
+    y = y + (1 - edgeFactor) * 30;
+
+    // Smooth transitions
+    if (i > 0) {
+      const prev = pts[pts.length - 1];
+      const maxDelta = 25;
+      y = Math.max(prev.y - maxDelta, Math.min(prev.y + maxDelta, y));
+    }
+
+    pts.push({ x, y: Math.max(H * 0.25, Math.min(H * 0.75, y)) });
   }
 
-  // Fill ground
+  // End low on right side
+  pts.push({ x: W, y: baseY + 20 });
+
+  state.terrain = pts;
+}
+
+function getTerrainY(x) {
+  const pts = state.terrain;
+  if (!pts || pts.length < 2) return H * 0.55;
+  if (x <= pts[0].x) return pts[0].y;
+  if (x >= pts[pts.length - 1].x) return pts[pts.length - 1].y;
+
+  for (let i = 0; i < pts.length - 1; i++) {
+    if (x >= pts[i].x && x < pts[i + 1].x) {
+      const t = (x - pts[i].x) / (pts[i + 1].x - pts[i].x);
+      return pts[i].y + (pts[i + 1].y - pts[i].y) * t;
+    }
+  }
+  return pts[pts.length - 1].y;
+}
+
+function placePlayers() {
+  // P1 on left third, P2 on right third
+  const p1x = 60 + Math.random() * (W * 0.32 - 120);
+  const p2x = W * 0.68 + Math.random() * (W * 0.32 - 60);
+
+  state.p1.x = p1x;
+  state.p1.y = getTerrainY(p1x) - PLAYER_RADIUS;
+  state.p2.x = p2x;
+  state.p2.y = getTerrainY(p2x) - PLAYER_RADIUS;
+
+  // Reset lives each new terrain
+  if (state.round === 1) {
+    state.p1.lives = 3;
+    state.p2.lives = 3;
+  }
+}
+
+function generateWind() {
+  const speed = (Math.random() - 0.5) * 8;
+  state.wind = Math.round(speed * 10) / 10;
+  const arrow = state.wind > 0 ? '→' : state.wind < 0 ? '←' : '·';
+  document.getElementById('wind-val').textContent = Math.abs(state.wind).toFixed(1) + ' ' + arrow;
+}
+
+// ============================================================
+// PHYSICS
+// ============================================================
+function simulateShot(angle, speed, startX, startY, player) {
+  const rad = angle * Math.PI / 180;
+  const vx0 = Math.cos(rad) * speed;
+  const vy0 = -Math.sin(rad) * speed; // negative = up in screen coords
+
+  let x = startX;
+  let y = startY;
+  let vx = vx0;
+  let vy = vy0;
+  const trail = [];
+  const dt = 0.3;
+  let landed = false;
+  let steps = 0;
+  let maxH = startY;
+  let flightTime = 0;
+
+  // Calculate target position for the OTHER player
+  const target = player === 1 ? state.p2 : state.p1;
+  const targetDist = Math.abs(target.x - startX);
+
+  while (steps < 400 && !landed) {
+    vy += G * dt;
+    vx += state.wind * dt * 1.2;
+    x += vx * dt;
+    y += vy * dt;
+    flightTime += dt;
+    steps++;
+
+    if (y < maxH) maxH = y;
+    if (y > H) { landed = true; y = H; }
+
+    // Check terrain collision
+    const ty = getTerrainY(x);
+    if (y >= ty) {
+      landed = true;
+      y = ty;
+    }
+
+    // Check off-screen
+    if (x < -20 || x > W + 20) { landed = true; break; }
+
+    trail.push({ x, y });
+
+    if (y > H) break;
+  }
+
+  // Calculate flat-range equivalent
+  const rangeFlat = (speed * speed * Math.sin(2 * rad)) / G;
+
+  // Determine if hit
+  const impactX = trail.length > 0 ? trail[trail.length - 1].x : x;
+  const impactY = trail.length > 0 ? trail[trail.length - 1].y : (landed ? getTerrainY(x) : y);
+  const distToTarget = Math.abs(impactX - target.x);
+  const distToTargetY = Math.abs(impactY - target.y);
+  const isDirectHit = distToTarget < IMPACT_RADIUS && distToTargetY < IMPACT_RADIUS + 10;
+
+  // Proximity (how close in x)
+  const proxX = Math.abs(impactX - target.x);
+
+  return {
+    trail, impactX, impactY, isDirectHit, proxX, distToTarget,
+    flightTime: Math.round(flightTime * 10) / 10,
+    maxHeight: Math.round((startY - maxH) * 10) / 10,
+    rangeFlat: Math.round(rangeFlat)
+  };
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function drawGround() {
+  const pts = state.terrain;
+  if (!pts || pts.length < 2) return;
+
+  ctx.save();
+
+  // Fill terrain
   ctx.beginPath();
-  ctx.moveTo(pts[0].sx, pts[0].sy);
+  ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) {
-    ctx.lineTo(pts[i].sx, pts[i].sy);
+    ctx.lineTo(pts[i].x, pts[i].y);
   }
   ctx.lineTo(W, H);
   ctx.lineTo(0, H);
   ctx.closePath();
-  ctx.fillStyle = '#1e3528';
+
+  // Ground gradient
+  const grad = ctx.createLinearGradient(0, H * 0.4, 0, H);
+  grad.addColorStop(0, '#2a4032');
+  grad.addColorStop(0.3, '#1e3025');
+  grad.addColorStop(1, '#141f18');
+  ctx.fillStyle = grad;
   ctx.fill();
 
-  // Draw ground contour
-  chalkLine(pts[0].sx, pts[0].sy, pts[1].sx, pts[1].sy, { width: 2.5 });
-  for (let i = 1; i < pts.length - 1; i++) {
-    chalkLine(pts[i].sx, pts[i].sy, pts[i+1].sx, pts[i+1].sy, { width: 2.5 });
+  // Dirt texture (subtle)
+  for (let i = 0; i < 200; i++) {
+    const x = Math.random() * W;
+    const y = getTerrainY(x) + 2 + Math.random() * 30;
+    ctx.fillStyle = `rgba(60,50,40,${0.05 + Math.random() * 0.08})`;
+    ctx.fillRect(x, y, 1 + Math.random() * 2, 1 + Math.random() * 2);
   }
 
-  // Draw extra contour line (parallel, slightly above)
-  for (let i = 1; i < pts.length; i++) {
-    chalkLine(pts[i-1].sx, pts[i-1].sy - 3, pts[i].sx, pts[i].sy - 3, { color: 'rgba(255,255,255,0.15)', width: 0.8 });
-  }
-
-  ctx.restore();
-}
-
-function drawCannon() {
-  const angleRad = state.angle * Math.PI / 180;
-  const cx = ORIGIN_X, cy = GROUND_Y - (LEVELS[state.level].playerY || 0) * SCALE;
-
-  ctx.save();
-
-  // Carriage (triangle)
+  // Surface line
   ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(cx - 15, cy + 25);
-  ctx.lineTo(cx + 15, cy + 25);
-  ctx.closePath();
-  ctx.strokeStyle = '#f5f5dc';
-  ctx.lineWidth = 2;
-  ctx.globalAlpha = 0.7;
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) {
+    // Slight organic curve
+    const midX = (pts[i-1].x + pts[i].x) / 2;
+    const midY = (pts[i-1].y + pts[i].y) / 2;
+    ctx.quadraticCurveTo(pts[i-1].x + (pts[i].x - pts[i-1].x) * 0.5, pts[i-1].y, pts[i].x, pts[i].y);
+  }
+  ctx.strokeStyle = '#5a7a5a';
+  ctx.lineWidth = 2.5;
   ctx.stroke();
 
-  // Wheels (two circles)
-  chalkCircle(cx - 10, cy + 26, 5, { width: 1.5, opacity: 0.6 });
-  chalkCircle(cx + 10, cy + 26, 5, { width: 1.5, opacity: 0.6 });
-
-  // Barrel (rotated line)
-  const barrelLen = 45;
-  const bx = cx + Math.cos(-angleRad + Math.PI/2) * barrelLen;
-  const by = cy + Math.sin(-angleRad + Math.PI/2) * barrelLen;
-  chalkLine(cx, cy, bx, by, { width: 4, color: '#f5f5dc' });
-
-  // Barrel inner line
-  chalkLine(cx, cy, bx, by, { width: 1.5, color: 'rgba(255,255,255,0.3)' });
-
-  // Angle arc indicator
-  if (state.phase === 'aiming') {
-    chalkArc(cx, cy, 35, -angleRad * Math.PI / 180, 0, { color: 'rgba(135,206,235,0.5)', width: 1, dash: true });
-    chalkText(state.angle + '°', cx + 42, cy - 18, { color: '#87ceeb', size: 12, align: 'left' });
+  // Highlight edge
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y - 0.5);
+  for (let i = 1; i < pts.length; i++) {
+    ctx.lineTo(pts[i].x, pts[i].y - 0.5);
   }
+  ctx.strokeStyle = 'rgba(180,220,160,0.08)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
 
   ctx.restore();
 }
 
-function drawTarget(levelIdx) {
-  const lvl = LEVELS[levelIdx];
-  if (!lvl) return;
-
-  const tx = ORIGIN_X + lvl.targetX;
-  const playerY = lvl.playerY || 0;
-  const terrainH = getTerrainHeight(lvl.targetX / SCALE, levelIdx) * SCALE;
-  const ty = GROUND_Y - lvl.targetY * SCALE - playerY * SCALE - terrainH;
+function drawPlayer(p, num, isCurrent) {
+  const color = num === 1 ? '#64b4ff' : '#ff6464';
+  const glow = isCurrent ? `0 0 12px ${color}66` : 'none';
 
   ctx.save();
+  ctx.shadowBlur = isCurrent ? 8 : 0;
+  ctx.shadowColor = color;
 
-  // Target circle (red chalk)
-  chalkCircle(tx, ty, 18, { color: '#ff6b6b', width: 2.5 });
-  chalkCircle(tx, ty, 12, { color: '#ff6b6b', width: 1.5 });
-  chalkCircle(tx, ty, 6, { color: '#ff6b6b', width: 1 });
+  // Body
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, PLAYER_RADIUS, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
 
-  // Crosshair
-  chalkLine(tx - 22, ty, tx + 22, ty, { color: '#ff6b6b', width: 1, opacity: 0.5 });
-  chalkLine(tx, ty - 22, tx, ty + 22, { color: '#ff6b6b', width: 1, opacity: 0.5 });
+  ctx.shadowBlur = 0;
 
-  // Distance marker
-  const distM = Math.round(lvl.targetX / SCALE);
-  chalkText(distM + 'm', tx, ty + 32, { color: 'rgba(255,255,255,0.3)', size: 10 });
+  // Number
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(num, p.x, p.y);
 
-  // Flagpole (Level 2)
-  if (lvl.targetFlagpole) {
-    chalkLine(tx, ty, tx, ty - 40, { color: '#f5f5dc', width: 1.5 });
-    // Flag
-    ctx.beginPath();
-    ctx.moveTo(tx, ty - 40);
-    ctx.lineTo(tx + 16, ty - 34);
-    ctx.lineTo(tx, ty - 28);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(255,215,0,0.5)';
-    ctx.fill();
-    ctx.strokeStyle = '#ffd700';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    chalkText('5m', tx + 8, ty - 30, { color: '#ffd700', size: 9, align: 'left' });
+  // Lives
+  const hearts = num === 1 ? '🔵'.repeat(p.lives) : '🔴'.repeat(p.lives);
+  ctx.font = '9px sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.fillText(hearts, p.x, p.y - PLAYER_RADIUS - 8);
 
-    // Show height annotation
-    chalkLine(tx + 3, ty, tx + 3, ty - 40, { color: 'rgba(255,215,0,0.3)', width: 0.8, dash: true });
-    chalkText('h=5m', tx + 8, ty - 20, { color: 'rgba(255,215,0,0.4)', size: 9, align: 'left' });
-  }
+  // Label
+  ctx.font = '10px sans-serif';
+  ctx.fillStyle = color;
+  ctx.textBaseline = 'top';
+  ctx.fillText('P' + num, p.x, p.y + PLAYER_RADIUS + 4);
+
+  ctx.restore();
+}
+
+function drawCannon(x, y, angle, isP1) {
+  const rad = angle * Math.PI / 180;
+  const len = 28;
+  const ex = x + Math.cos(-rad + Math.PI/2) * len;
+  const ey = y + Math.sin(-rad + Math.PI/2) * len;
+  const color = isP1 ? '#64b4ff' : '#ff6464';
+
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.shadowBlur = 6;
+  ctx.shadowColor = color + '44';
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(ex, ey); ctx.stroke();
+
+  // Barrel highlight
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(x + 1, y - 1); ctx.lineTo(ex + 1, ey - 1); ctx.stroke();
+
+  ctx.shadowBlur = 0;
+
+  // Angle arc indicator
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 4]);
+  ctx.beginPath();
+  ctx.arc(x, y, 22, -rad, 0);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Angle label
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(angle + '°', x + 30, y - 16);
 
   ctx.restore();
 }
@@ -714,547 +524,475 @@ function drawTrail() {
   if (!state.trail || state.trail.length < 2) return;
   ctx.save();
 
-  // Draw chalk arc
+  const color = state.currentPlayer === 1 ? '#64b4ff' : '#ff6464';
+
+  // Trail glow
   for (let i = 1; i < state.trail.length; i++) {
-    const t = state.trail[i];
-    const tp = state.trail[i - 1];
-    const progress = i / state.trail.length;
-    const alpha = 0.3 + progress * 0.5;
-    const width = 1 + progress * 1.5;
-    chalkLine(tp.sx, tp.sy, t.sx, t.sy, { color: '#f5f5dc', width, opacity: alpha });
+    const t = i / state.trail.length;
+    const w = 1 + t * 2.5;
+    const a = 0.3 + t * 0.5;
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = a;
+    ctx.lineWidth = w;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(state.trail[i-1].x, state.trail[i-1].y);
+    ctx.lineTo(state.trail[i].x, state.trail[i].y);
+    ctx.stroke();
   }
 
-  // Glow effect on recent trail
-  if (state.trail.length > 5) {
-    for (let i = Math.max(0, state.trail.length - 20); i < state.trail.length; i++) {
-      const t = state.trail[i];
-      const tp = state.trail[Math.max(0, i - 1)];
-      const alpha = (i - state.trail.length + 20) / 20 * 0.6;
-      chalkLine(tp.sx, tp.sy, t.sx, t.sy, { color: '#87ceeb', width: 0.8, opacity: alpha });
-    }
-  }
-
+  ctx.globalAlpha = 1;
   ctx.restore();
 }
 
-function drawExplosion(sx, sy) {
+function drawExplosion(x, y) {
   ctx.save();
-  const rays = 16;
-  for (let i = 0; i < rays; i++) {
-    const a = (i / rays) * Math.PI * 2 + Math.random() * 0.2;
-    const len = 15 + Math.random() * 25;
-    chalkLine(sx, sy, sx + Math.cos(a) * len, sy + Math.sin(a) * len, { color: '#f5f5dc', width: 1.5 + Math.random() * 2, opacity: 0.7 });
-  }
-  chalkCircle(sx, sy, 10 + Math.random() * 8, { color: 'rgba(255,255,255,0.5)', width: 2 });
-  chalkCircle(sx, sy, 4, { color: 'rgba(255,255,255,0.8)', width: 1.5 });
+  const color = state.currentPlayer === 1 ? '#64b4ff' : '#ff6464';
 
-  // Dust particles
-  for (let i = 0; i < 30; i++) {
+  // Blast circle
+  const grad = ctx.createRadialGradient(x, y, 0, x, y, IMPACT_RADIUS);
+  grad.addColorStop(0, 'rgba(255,255,255,0.6)');
+  grad.addColorStop(0.3, color + '99');
+  grad.addColorStop(0.6, color + '44');
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(x, y, IMPACT_RADIUS, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Debris dots
+  for (let i = 0; i < 15; i++) {
     const a = Math.random() * Math.PI * 2;
-    const r = 5 + Math.random() * 30;
-    const px = sx + Math.cos(a) * r;
-    const py = sy + Math.sin(a) * r;
-    ctx.fillStyle = `rgba(245,245,220,${0.1 + Math.random() * 0.3})`;
+    const r = 5 + Math.random() * 12;
+    const dx = x + Math.cos(a) * r;
+    const dy = y + Math.sin(a) * r;
+    ctx.fillStyle = `rgba(180,160,120,${0.1 + Math.random() * 0.2})`;
     ctx.beginPath();
-    ctx.arc(px, py, 1 + Math.random() * 2, 0, Math.PI * 2);
+    ctx.arc(dx, dy, 1 + Math.random() * 2, 0, Math.PI * 2);
     ctx.fill();
   }
+
   ctx.restore();
 }
 
-function drawChalkMarks() {
-  for (const mark of state.chalkMarks) {
-    if (mark.type === 'line') {
-      chalkLine(mark.x1, mark.y1, mark.x2, mark.y2, { color: mark.color || 'rgba(255,255,255,0.4)', width: mark.width || 1.5, dash: mark.dash });
-    } else if (mark.type === 'arc') {
-      chalkArc(mark.x, mark.y, mark.r, mark.sa || 0, mark.ea || Math.PI * 2, { color: mark.color || 'rgba(255,255,255,0.4)', width: mark.width || 1.5 });
-    } else if (mark.type === 'text') {
-      chalkText(mark.text, mark.x, mark.y, { color: mark.color || 'rgba(255,255,255,0.5)', size: mark.size || 11 });
+function drawImpactMarker() {
+  if (!state.lastImpact) return;
+  const { x, y, isHit } = state.lastImpact;
+  ctx.save();
+
+  if (isHit) {
+    // Star burst for hit
+    const color = state.currentPlayer === 1 ? '#ffd700' : '#ffd700';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#ffd700';
+    const rays = 20;
+    for (let i = 0; i < rays; i++) {
+      const a = (i / rays) * Math.PI * 2;
+      const r1 = 6 + Math.random() * 4;
+      const r2 = 14 + Math.random() * 10;
+      ctx.beginPath();
+      ctx.moveTo(x + Math.cos(a) * r1, y + Math.sin(a) * r1);
+      ctx.lineTo(x + Math.cos(a) * r2, y + Math.sin(a) * r2);
+      ctx.stroke();
     }
+    // Hit circle
+    ctx.beginPath();
+    ctx.arc(x, y, 18, 0, Math.PI * 2);
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+  } else {
+    // Impact crater (gray)
+    ctx.strokeStyle = 'rgba(200,200,180,0.3)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3,4]);
+    ctx.beginPath();
+    ctx.arc(x, y, 12, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Proximity cross
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(x - 5, y); ctx.lineTo(x + 5, y);
+    ctx.moveTo(x, y - 5); ctx.lineTo(x, y + 5);
+    ctx.stroke();
   }
+
+  ctx.restore();
 }
 
-function drawGhostLines(levelIdx) {
-  if (!state.ghostVisible || !state.ghostAvailable) return;
-  const lvl = LEVELS[levelIdx];
-  if (!lvl || !lvl.ghostLines) return;
+function drawHUD() {
+  ctx.save();
 
-  for (const gl of lvl.ghostLines) {
-    if (gl.type === 'line') {
-      chalkLine(gl.x1, gl.y1, gl.x2, gl.y2, { color: '#ffd700', width: 1.5, dash: gl.dash, opacity: 0.8 });
-    } else if (gl.type === 'arc') {
-      chalkArc(gl.x, gl.y, gl.radius, gl.startAngle, gl.endAngle, { color: '#ffd700', width: 1.5, opacity: 0.7 });
-    } else if (gl.type === 'angle_label') {
-      chalkText(gl.text, gl.x, gl.y, { color: '#ffd700', size: 12, align: 'left' });
-    } else if (gl.type === 'text') {
-      chalkText(gl.text, gl.x, gl.y, { color: gl.color || '#ffd700', size: gl.size || 11, align: 'left' });
-    } else if (gl.type === 'circle') {
-      chalkCircle(gl.x, gl.y, gl.radius, { color: '#ffd700', width: 1.5, dash: true, opacity: 0.6 });
-    }
-  }
+  // Wind indicator
+  const wx = W / 2;
+  const wy = 16;
+  const windStr = state.wind;
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('💨 Wind: ' + Math.abs(windStr).toFixed(1) + (windStr > 0 ? ' →' : windStr < 0 ? ' ←' : ' ·'), wx, wy);
+
+  // Round indicator
+  ctx.textAlign = 'right';
+  ctx.fillText('Round ' + state.round, W - 10, wy);
+
+  ctx.restore();
 }
 
-function drawActiveTool() {
-  const t = state.tools;
-  if (!t.active || !t.measuring) return;
-
-  if (t.active === 'ruler') {
-    if (t.start) {
-      chalkLine(t.start.x, t.start.y, t.end.x, t.end.y, { color: '#87ceeb', width: 1.5, dash: true });
-      const dist = Math.hypot(t.end.x - t.start.x, t.end.y - t.start.y) / SCALE;
-      const mx = (t.start.x + t.end.x) / 2;
-      const my = (t.start.y + t.end.y) / 2;
-      chalkText(Math.round(dist) + 'm', mx, my - 8, { color: '#87ceeb', size: 13 });
-    }
-  } else if (t.active === 'protractor') {
-    if (t.start && t.end) {
-      const cx = t.start.x, cy = t.start.y;
-      const dx = t.end.x - cx, dy = t.end.y - cy;
-      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-      const r = Math.hypot(dx, dy);
-      chalkArc(cx, cy, Math.min(r, 40), 0, Math.atan2(dy, dx), { color: '#87ceeb', width: 1.5 });
-      chalkLine(cx, cy, cx + r, cy, { color: '#87ceeb', width: 1, dash: true, opacity: 0.4 });
-      chalkLine(cx, cy, t.end.x, t.end.y, { color: '#87ceeb', width: 1.5 });
-      chalkText(Math.round(Math.abs(angle)) + '°', cx + r/2 + 10, cy - 10, { color: '#87ceeb', size: 12 });
-    }
-  }
-}
-
-// --- UI Drawing ---
-function drawEstimationLabel() {
-  // Estimated range display
-  const angle = state.angle;
-  const powder = state.powder;
-  const v0 = BASE_VEL * (powder / 100);
-  const estRange = Math.round(v0 * v0 * Math.sin(2 * angle * Math.PI / 180) / G);
-  document.getElementById('est-range').textContent = estRange || '---';
-}
-
-// --- Main Render ---
 function render() {
-  drawChalkboardTexture();
-  drawGrid();
-  drawTerrain(state.level);
-  drawChalkMarks();
-  drawTarget(state.level);
-  drawCannon();
-  drawTrail();
-  drawActiveTool();
-  drawGhostLines(state.level);
+  // Background
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+  bgGrad.addColorStop(0, '#121f17');
+  bgGrad.addColorStop(0.4, '#1a2d20');
+  bgGrad.addColorStop(0.7, '#1e3025');
+  bgGrad.addColorStop(1, '#141f18');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
 
-  // Draw cannon base label
-  const lvl = LEVELS[state.level];
-  chalkText('YOUR BATTERY', ORIGIN_X, GROUND_Y - (lvl.playerY||0)*SCALE + 36, { color: 'rgba(135,206,235,0.4)', size: 9 });
+  // Subtle stars in sky
+  for (let i = 0; i < 40; i++) {
+    ctx.fillStyle = `rgba(255,255,255,${0.02 + Math.random() * 0.06})`;
+    ctx.fillRect(Math.random() * W, Math.random() * H * 0.3, 1, 1);
+  }
+
+  drawGround();
+  drawTrail();
+  drawPlayer(state.p1, 1, state.currentPlayer === 1 && state.phase === 'aiming');
+  drawPlayer(state.p2, 2, state.currentPlayer === 2 && state.phase === 'aiming');
+
+  // Draw cannons for current player
+  if (state.phase === 'aiming') {
+    const p = state.currentPlayer === 1 ? state.p1 : state.p2;
+    drawCannon(p.x, p.y, p.angle, state.currentPlayer === 1);
+  }
+
+  drawImpactMarker();
+  drawHUD();
 }
 
-// --- Fire! ---
+// ============================================================
+// GAME LOGIC
+// ============================================================
+
 function fire() {
   if (state.phase !== 'aiming') return;
 
-  const lvl = LEVELS[state.level];
+  const p = state.currentPlayer === 1 ? state.p1 : state.p2;
+  const startX = p.x;
+  const startY = p.y - 2;
+
   state.phase = 'firing';
-  state.shots++;
-  document.getElementById('shots-count').textContent = state.shots;
 
-  const result = simulateShot(state.angle, state.powder, state.level);
-  state.trail = result.trail;
+  const result = simulateShot(p.angle, p.speed, startX, startY, state.currentPlayer);
   state.shell = result;
+  state.trail = result.trail;
+  state.lastImpact = null;
 
-  // Render immediately with trail
   render();
+  drawTrail();
+  drawExplosion(result.impactX, result.impactY);
 
-  // Animate explosion
-  const impactPt = result.trail.length > 0 ? result.trail[result.trail.length - 1] : null;
-  if (impactPt) {
-    drawExplosion(result.impactX, result.impactY);
-  }
+  // Update geometry panel
+  updateGeoPanel(result);
 
-  // Determine feedback
-  const diffM = Math.round(Math.abs(result.impactX - (ORIGIN_X + lvl.targetX)) / SCALE);
-  let fbTitle, fbBody;
+  // Record history
+  const playerColor = state.currentPlayer === 1 ? '#64b4ff' : '#ff6464';
+  state.history.unshift({
+    player: state.currentPlayer,
+    angle: p.angle,
+    speed: p.speed,
+    prox: Math.round(result.proxX),
+    hit: result.isDirectHit
+  });
+  updateHistory();
 
-  if (result.hitTarget) {
-    fbTitle = '🎯 TARGET HIT!';
-    fbBody = `Direct hit! You destroyed the target in ${state.shots} shot${state.shots > 1 ? 's' : ''}!`;
-    state.hasHit = true;
-    state.ghostAvailable = true;
-    document.getElementById('ghost-toggle').style.display = 'block';
-    showFeedback(fbTitle, fbBody, true);
-  } else {
-    const dir = result.missDir;
-    const distStr = diffM > 0 ? ` by ~${diffM}m` : '';
-    fbTitle = dir === 'SHORT' ? '📉 SHORT' : dir === 'LONG' ? '📈 LONG' : '❌ MISS';
-    fbBody = `Impact ${dir.toLowerCase()}${distStr} of target.`;
-    if (state.angle > 50) fbBody += ' Try a lower angle.';
-    else if (state.angle < 15) fbBody += ' Try a higher angle.';
-    else {
-      if (dir === 'SHORT') fbBody += ' Increase the angle or powder.';
-      else fbBody += ' Decrease the angle or powder.';
+  // Show result
+  setTimeout(() => {
+    state.lastImpact = { x: result.impactX, y: result.impactY, isHit: result.isDirectHit };
+    state.phase = 'result';
+    render();
+
+    if (result.isDirectHit) {
+      // HIT!
+      const loser = state.currentPlayer === 1 ? 2 : 1;
+      if (state.currentPlayer === 1) {
+        state.p2.lives--;
+      } else {
+        state.p1.lives--;
+      }
+
+      const winTitle = '🎯 DIRECT HIT!';
+      const winBody = `Player ${state.currentPlayer} nailed it!`;
+      let proxStr = '';
+
+      if (state.currentPlayer === 1 ? state.p2.lives <= 0 : state.p1.lives <= 0) {
+        // Game over
+        proxStr = '💀 Fatal strike!';
+        if (state.currentPlayer === 1) state.p1Wins++;
+        else state.p2Wins++;
+        document.getElementById('p1-wins').textContent = state.p1Wins;
+        document.getElementById('p2-wins').textContent = state.p2Wins;
+        showResult(winTitle, winBody + ' 🏆 Game Over!', proxStr, true);
+        state.phase = 'gameover';
+      } else {
+        proxStr = `${loser === 1 ? 'P1' : 'P2'} has ${loser === 1 ? state.p1.lives : state.p2.lives} lives remaining`;
+        showResult(winTitle, winBody, proxStr, true);
+      }
+    } else {
+      // MISS — show proximity
+      const dir = result.impactX < (state.currentPlayer === 1 ? state.p2.x : state.p1.x) ? 'SHORT' : 'LONG';
+      const proxStr = `${dir} by ${Math.round(result.proxX)}px — Angle: ${p.angle}°  Speed: ${p.speed}`;
+
+      const hint = [];
+      if (Math.abs(result.proxX) > 60) {
+        if (result.impactX < (state.currentPlayer === 1 ? state.p2.x : state.p1.x)) {
+          hint.push('Try a HIGHER angle or more speed');
+        } else {
+          hint.push('Try a LOWER angle or less speed');
+        }
+      } else {
+        hint.push('Close! Fine-tune by ±2°');
+      }
+      if (Math.abs(state.wind) > 1) {
+        const windDir = state.wind > 0 ? 'right' : 'left';
+        hint.push(`Wind (${windDir}) affected your shot`);
+      }
+
+      showResult('📉 MISS', proxStr, hint.join(' · '), false);
     }
-    showFeedback(fbTitle, fbBody, false);
-  }
+
+    // Switch player
+    state.currentPlayer = state.currentPlayer === 1 ? 2 : 1;
+    updateTurnDisplay();
+  }, 800);
 }
 
-function showFeedback(title, body, isHit) {
-  const el = document.getElementById('feedback');
-  document.getElementById('fb-title').textContent = title;
-  document.getElementById('fb-title').style.color = isHit ? '#ffd700' : '#e8e0cc';
-  document.getElementById('fb-body').textContent = body;
-  document.getElementById('fb-next-btn').style.display = isHit ? 'none' : 'inline-block';
-  el.style.display = 'block';
-  state.phase = 'result';
-
-  if (isHit) {
-    // Show level complete after a moment
-    setTimeout(() => {
-      document.getElementById('feedback').style.display = 'none';
-      showLessonCard(state.level);
-    }, 1500);
-  }
+function showResult(title, body, prox, isHit) {
+  document.getElementById('r-title').textContent = title;
+  document.getElementById('r-title').style.color = isHit ? '#ffd700' : '#d4d0b8';
+  document.getElementById('r-body').textContent = body;
+  document.getElementById('r-prox').textContent = prox || '';
+  document.getElementById('result').style.display = 'block';
 }
 
-function dismissFeedback() {
-  document.getElementById('feedback').style.display = 'none';
+function dismissResult() {
+  document.getElementById('result').style.display = 'none';
+
+  if (state.phase === 'gameover') {
+    startNewRound();
+    return;
+  }
+
+  // Switch to next player's aiming phase
   state.phase = 'aiming';
-}
-
-function showLessonCard(levelIdx) {
-  const lvl = LEVELS[levelIdx];
-  const el = document.getElementById('lesson-card');
-  document.getElementById('lc-title').textContent = `📖 ${lvl.concept}`;
-  document.getElementById('lc-concept').textContent = lvl.name;
-  document.getElementById('lc-body').textContent = lvl.desc;
-  // Real-world connection
-  const realNotes = [
-    'Surveyors use similar triangles to measure distances across rivers and valleys.',
-    'Artillery gunners use firing tables — every angle has a known range.',
-    'Snipers use the same low/high angle principle when shooting over obstacles.',
-    'Builders use angles of elevation when calculating ramp lengths and roof pitches.',
-    'Pilots use angles of depression when calculating landing approaches.'
-  ];
-  document.getElementById('lc-real').textContent = '🌍 Real world: ' + realNotes[levelIdx % realNotes.length];
-  el.style.display = 'block';
-  state.phase = 'lesson';
-}
-
-function dismissLesson() {
-  document.getElementById('lesson-card').style.display = 'none';
-  showLevelComplete(state.level);
-}
-
-function showLevelComplete(levelIdx) {
-  const lvl = LEVELS[levelIdx];
-  const el = document.getElementById('level-complete');
-  document.getElementById('lv-title').textContent = '🎖 TARGET DESTROYED!';
-  document.getElementById('lv-sub').textContent = lvl.name + ' — Complete';
-  document.getElementById('lv-shots').textContent = state.shots;
-
-  let rank, rankColor;
-  if (state.shots === 1) { rank = '🥇 Gold'; rankColor = '#ffd700'; }
-  else if (state.shots <= 3) { rank = '🥈 Silver'; rankColor = '#c0c0c0'; }
-  else { rank = '🥉 Bronze'; rankColor = '#cd7f32'; }
-  document.getElementById('lv-rank').textContent = rank;
-  document.getElementById('lv-rank').style.color = rankColor;
-
-  if (levelIdx < LEVELS.length - 1) {
-    const next = LEVELS[levelIdx + 1];
-    document.getElementById('lv-next-hint').textContent = `Next: ${next.name} — ${next.concept}`;
-    document.getElementById('lc-next-btn').style.display = 'inline-block';
-  } else {
-    document.getElementById('lv-next-hint').textContent = '🏆 You completed all levels! 🏆';
-    document.getElementById('lc-next-btn').textContent = '🏆 Play Again';
-  }
-
-  el.style.display = 'block';
-  state.phase = 'result';
-}
-
-function nextLevel() {
-  document.getElementById('level-complete').style.display = 'none';
-  if (state.level < LEVELS.length - 1) {
-    state.level++;
-    resetLevel();
-  } else {
-    state.level = 0;
-    resetLevel();
-  }
-}
-
-function resetLevel() {
-  const lvl = LEVELS[state.level];
-  state.phase = 'aiming';
-  state.shots = 0;
-  state.hasHit = false;
-  state.ghostAvailable = false;
-  state.ghostVisible = false;
   state.trail = [];
-  state.chalkMarks = [];
-  state.tools.active = null;
-  state.tools.measuring = false;
-  state.tools.start = null;
-  state.tools.end = null;
-  state.hintLevel = 0;
-  state.angle = 30;
-  state.powder = lvl.fixedPowder || 100;
-
-  document.getElementById('ghost-toggle').style.display = 'none';
-  document.getElementById('score-bar').style.display = 'block';
-  document.getElementById('shots-count').textContent = '0';
-  document.getElementById('feedback').style.display = 'none';
-  document.getElementById('lesson-card').style.display = 'none';
-  document.getElementById('level-complete').style.display = 'none';
-  document.getElementById('fire-btn').disabled = false;
-
-  updateUI();
   render();
+
+  // Update controls for new player
+  const p = state.currentPlayer === 1 ? state.p1 : state.p2;
+  document.getElementById('angle-slider').value = p.angle;
+  document.getElementById('angle-display').textContent = p.angle + '°';
+  document.getElementById('speed-slider').value = p.speed;
+  document.getElementById('speed-display').textContent = p.speed;
+
+  document.getElementById('fire-btn').disabled = false;
+  showMessage(`Player ${state.currentPlayer}'s turn — set your angle and speed`);
 }
 
-function updateUI() {
-  const lvl = LEVELS[state.level];
-  document.getElementById('level-name-display').textContent = `Level ${lvl.id}: ${lvl.name}`;
-  document.getElementById('concept-display').textContent = lvl.concept;
+function startNewRound() {
+  state.round++;
+  state.phase = 'aiming';
+  state.trail = [];
+  state.lastImpact = null;
+  state.history = [];
 
-  const ranks = ['Recruit','Private','Corporal','Sergeant','Lieutenant','Captain'];
-  document.getElementById('rank-display').textContent = ranks[Math.min(state.level, ranks.length-1)];
-
-  document.getElementById('angle-display').textContent = state.angle + '°';
-  document.getElementById('angle-slider').value = state.angle;
-  document.getElementById('powder-display').textContent = state.powder + '%';
-  document.getElementById('powder-slider').value = state.powder;
-
-  drawEstimationLabel();
-}
-
-function showHint() {
-  const lvl = LEVELS[state.level];
-  const hints = lvl.hint.split(/\n/);
-  if (state.hintLevel < hints.length) {
-    showMessage('💡 ' + hints[state.hintLevel]);
-    state.hintLevel++;
-  } else {
-    showMessage('💡 ' + hints[hints.length - 1]);
+  // Reset lives if someone hit zero
+  if (state.p1.lives <= 0 || state.p2.lives <= 0) {
+    state.p1.lives = 3;
+    state.p2.lives = 3;
   }
+
+  generateTerrain();
+  generateWind();
+  placePlayers();
+
+  state.currentPlayer = Math.random() < 0.5 ? 1 : 2;
+  state.p1.angle = Math.round((45 + (Math.random() - 0.5) * 20) * 2) / 2;
+  state.p1.speed = Math.round(45 + Math.random() * 15);
+  state.p2.angle = Math.round((45 + (Math.random() - 0.5) * 20) * 2) / 2;
+  state.p2.speed = Math.round(45 + Math.random() * 15);
+
+  document.getElementById('history').style.display = 'block';
+  document.getElementById('hist-entries').innerHTML = '';
+
+  updateTurnDisplay();
+  const p = state.currentPlayer === 1 ? state.p1 : state.p2;
+  document.getElementById('angle-slider').value = p.angle;
+  document.getElementById('angle-display').textContent = p.angle + '°';
+  document.getElementById('speed-slider').value = p.speed;
+  document.getElementById('speed-display').textContent = p.speed;
+  document.getElementById('fire-btn').disabled = false;
+  document.getElementById('result').style.display = 'none';
+
+  render();
+  showMessage(`🌄 New round! Player ${state.currentPlayer} fires first`);
+}
+
+function updateTurnDisplay() {
+  const el = document.getElementById('turn-display');
+  if (state.currentPlayer === 1) {
+    el.textContent = '🔵 Player 1\'s Turn';
+    el.className = 'turn-p1';
+  } else {
+    el.textContent = '🔴 Player 2\'s Turn';
+    el.className = 'turn-p2';
+  }
+}
+
+function updateGeoPanel(result) {
+  const p = state.currentPlayer === 1 ? state.p1 : state.p2;
+  const target = state.currentPlayer === 1 ? state.p2 : state.p1;
+  const targetDist = Math.abs(target.x - p.x);
+
+  document.getElementById('gp-angle').textContent = p.angle + '°';
+  document.getElementById('gp-speed').textContent = p.speed + ' m/s';
+  document.getElementById('gp-time').textContent = (result.flightTime || '--') + 's';
+  document.getElementById('gp-height').textContent = (result.maxHeight || '--') + 'm';
+  document.getElementById('gp-range').textContent = (result.rangeFlat || '--') + 'm';
+  document.getElementById('gp-target-dist').textContent = Math.round(targetDist * (300/W)) + 'm';
+}
+
+function updateHistory() {
+  const el = document.getElementById('hist-entries');
+  el.innerHTML = state.history.slice(0, 6).map(h =>
+    `<div class="hist-entry" style="color:${h.player === 1 ? '#64b4ff' : '#ff6464'}">
+      P${h.player}: ${h.angle}° @ ${h.speed} ${h.hit ? '🎯' : '~' + h.prox + 'px'}
+    </div>`
+  ).join('');
 }
 
 function showMessage(text) {
   const el = document.getElementById('message');
   el.textContent = text;
   el.style.opacity = '1';
-  setTimeout(() => { el.style.opacity = '0'; }, 4000);
+  setTimeout(() => { el.style.opacity = '0'; }, 3500);
 }
 
-// --- Tool System ---
-function activateTool(toolName) {
-  const t = state.tools;
-  if (t.active === toolName) {
-    t.active = null;
-    t.measuring = false;
-  } else {
-    t.active = toolName;
-    t.measuring = false;
-    t.start = null;
-    t.end = null;
-  }
-  // Update button states
-  document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.tool === t.active);
-  });
-}
+// ============================================================
+// CONTROLS
+// ============================================================
 
-// --- Input Handling ---
-canvas.addEventListener('mousedown', (e) => {
-  if (state.phase !== 'aiming') return;
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  const mx = (e.clientX - rect.left) * scaleX;
-  const my = (e.clientY - rect.top) * scaleY;
-
-  const t = state.tools;
-  if (t.active === 'ruler' || t.active === 'protractor') {
-    t.measuring = true;
-    t.start = { x: mx, y: my };
-    t.end = { x: mx, y: my };
-  }
-});
-
-canvas.addEventListener('mousemove', (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  const mx = (e.clientX - rect.left) * scaleX;
-  const my = (e.clientY - rect.top) * scaleY;
-
-  const t = state.tools;
-  if (t.measuring && t.start) {
-    t.end = { x: mx, y: my };
-    render();
-    drawActiveTool();
-  }
-});
-
-canvas.addEventListener('mouseup', (e) => {
-  const t = state.tools;
-  if (t.measuring && t.start && t.end) {
-    t.measuring = false;
-
-    if (t.active === 'ruler') {
-      // Add ruler mark to chalk marks
-      const dist = Math.hypot(t.end.x - t.start.x, t.end.y - t.start.y) / SCALE;
-      const mx = (t.start.x + t.end.x) / 2;
-      const my = (t.start.y + t.end.y) / 2;
-      state.chalkMarks.push({ type: 'line', x1: t.start.x, y1: t.start.y, x2: t.end.x, y2: t.end.y, color: 'rgba(135,206,235,0.5)', width: 1.5 });
-      state.chalkMarks.push({ type: 'text', text: Math.round(dist) + 'm', x: mx, y: my - 6, color: '#87ceeb', size: 11 });
-    } else if (t.active === 'protractor') {
-      const dx = t.end.x - t.start.x, dy = t.end.y - t.start.y;
-      const angle = Math.abs(Math.atan2(dy, dx) * 180 / Math.PI);
-      const r = Math.hypot(dx, dy);
-      state.chalkMarks.push({ type: 'arc', x: t.start.x, y: t.start.y, r: Math.min(r, 40), sa: 0, ea: Math.atan2(dy, dx), color: 'rgba(135,206,235,0.5)' });
-      state.chalkMarks.push({ type: 'line', x1: t.start.x, y1: t.start.y, x2: t.end.x, y2: t.end.y, color: 'rgba(135,206,235,0.4)', width: 1.5 });
-      state.chalkMarks.push({ type: 'text', text: Math.round(angle) + '°', x: t.end.x + 12, y: t.end.y, color: '#87ceeb', size: 11 });
-    }
-
-    t.start = null;
-    t.end = null;
-    render();
-  }
-});
-
-// Touch support
-canvas.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  const touch = e.touches[0];
-  const me = new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY });
-  canvas.dispatchEvent(me);
-}, { passive: false });
-
-canvas.addEventListener('touchmove', (e) => {
-  e.preventDefault();
-  const touch = e.touches[0];
-  const me = new MouseEvent('mousemove', { clientX: touch.clientX, clientY: touch.clientY });
-  canvas.dispatchEvent(me);
-}, { passive: false });
-
-canvas.addEventListener('touchend', (e) => {
-  e.preventDefault();
-  const me = new MouseEvent('mouseup', {});
-  canvas.dispatchEvent(me);
-}, { passive: false });
-
-// --- Slider Controls ---
 document.getElementById('angle-slider').addEventListener('input', (e) => {
   if (state.phase !== 'aiming') return;
-  state.angle = parseFloat(e.target.value);
-  updateUI();
+  const val = Math.round(parseFloat(e.target.value) * 10) / 10;
+  const p = state.currentPlayer === 1 ? state.p1 : state.p2;
+  p.angle = val;
+  document.getElementById('angle-display').textContent = val + '°';
+  document.getElementById('angle-display').style.color = state.currentPlayer === 1 ? '#64b4ff' : '#ff6464';
   render();
 });
 
-document.getElementById('powder-slider').addEventListener('input', (e) => {
+document.getElementById('speed-slider').addEventListener('input', (e) => {
   if (state.phase !== 'aiming') return;
-  state.powder = parseFloat(e.target.value);
-  updateUI();
-  render();
+  const val = parseFloat(e.target.value);
+  const p = state.currentPlayer === 1 ? state.p1 : state.p2;
+  p.speed = val;
+  document.getElementById('speed-display').textContent = val;
+  document.getElementById('speed-display').style.color = state.currentPlayer === 1 ? '#64b4ff' : '#ff6464';
 });
 
-// --- Button Handlers ---
 document.getElementById('fire-btn').addEventListener('click', fire);
-document.getElementById('fb-next-btn').addEventListener('click', dismissFeedback);
-document.getElementById('lc-close-btn').addEventListener('click', dismissLesson);
-document.getElementById('lc-next-btn').addEventListener('click', nextLevel);
+document.getElementById('r-ok-btn').addEventListener('click', dismissResult);
+document.getElementById('new-game-btn').addEventListener('click', startNewRound);
 
-// Tool buttons
-document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const tool = btn.dataset.tool;
-    if (tool === 'grid') {
-      state.gridOn = !state.gridOn;
-      btn.classList.toggle('active', state.gridOn);
-      render();
-    } else {
-      activateTool(tool);
-    }
-  });
+// Geometry panel
+document.getElementById('geo-help').addEventListener('click', () => {
+  const panel = document.getElementById('geo-panel');
+  state.showGeo = !state.showGeo;
+  panel.style.display = state.showGeo ? 'block' : 'none';
+});
+document.getElementById('gp-close-btn').addEventListener('click', () => {
+  document.getElementById('geo-panel').style.display = 'none';
+  state.showGeo = false;
 });
 
-document.getElementById('clear-btn').addEventListener('click', () => {
-  state.chalkMarks = [];
-  render();
-});
-
-document.getElementById('hint-btn').addEventListener('click', showHint);
-
-document.getElementById('ghost-toggle').addEventListener('click', () => {
-  state.ghostVisible = !state.ghostVisible;
-  document.getElementById('ghost-toggle').textContent = state.ghostVisible ? '👻 Hide Solution' : '👻 Show Solution';
-  render();
-  if (state.ghostVisible) {
-    drawGhostLines(state.level);
-  }
-});
-
-// --- Keyboard Shortcuts ---
+// Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-  const key = e.key.toLowerCase();
+  const key = e.key;
 
-  if (key === ' ' || key === 'enter') {
+  if (key === 'Enter' || key === ' ') {
     e.preventDefault();
     if (state.phase === 'aiming') fire();
-    else if (state.phase === 'result' && document.getElementById('feedback').style.display === 'block') dismissFeedback();
-    else if (state.phase === 'lesson') dismissLesson();
+    else if (state.phase === 'result' || state.phase === 'gameover') dismissResult();
     return;
   }
 
   if (state.phase !== 'aiming') return;
 
   switch (key) {
-    case 'arrowup': case 'w':
-      state.angle = Math.min(90, state.angle + 1);
+    case 'ArrowUp':
+      e.preventDefault();
+      adjustAngle(1);
       break;
-    case 'arrowdown': case 's':
-      state.angle = Math.max(0, state.angle - 1);
+    case 'ArrowDown':
+      e.preventDefault();
+      adjustAngle(-1);
       break;
-    case 'arrowleft': case 'a':
-      state.powder = Math.max(10, state.powder - 2);
+    case 'ArrowRight':
+      e.preventDefault();
+      adjustSpeed(2);
       break;
-    case 'arrowright': case 'd':
-      state.powder = Math.min(100, state.powder + 2);
-      break;
-    case 'g':
-      state.gridOn = !state.gridOn;
-      document.querySelector('[data-tool="grid"]').classList.toggle('active', state.gridOn);
-      break;
-    case 'r':
-      activateTool('ruler');
-      break;
-    case 'p':
-      activateTool('protractor');
-      break;
-    case 'a':
-      activateTool('angle');
-      break;
-    case 'c':
-      state.chalkMarks = [];
-      break;
-    case 'h':
-      showHint();
-      break;
-    case 'escape':
-      activateTool(null);
+    case 'ArrowLeft':
+      e.preventDefault();
+      adjustSpeed(-2);
       break;
   }
-  updateUI();
-  render();
 });
 
-// --- Window Resize ---
+function adjustAngle(delta) {
+  const p = state.currentPlayer === 1 ? state.p1 : state.p2;
+  p.angle = Math.round(Math.max(1, Math.min(89, p.angle + delta)) * 2) / 2;
+  document.getElementById('angle-slider').value = p.angle;
+  document.getElementById('angle-display').textContent = p.angle + '°';
+  render();
+}
+
+function adjustSpeed(delta) {
+  const p = state.currentPlayer === 1 ? state.p1 : state.p2;
+  p.speed = Math.max(10, Math.min(100, p.speed + delta));
+  document.getElementById('speed-slider').value = p.speed;
+  document.getElementById('speed-display').textContent = p.speed;
+}
+
+// Canvas click to set angle visually
+canvas.addEventListener('click', (e) => {
+  if (state.phase !== 'aiming') return;
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const mx = (e.clientX - rect.left) * scaleX;
+
+  const p = state.currentPlayer === 1 ? state.p1 : state.p2;
+  // Clicking to the right of player = angle reference
+  const dx = mx - p.x;
+  if (Math.abs(dx) > 50) {
+    // Simple visual reference: don't auto-set angle, just hint
+  }
+});
+
+// Resize
 function resizeCanvas() {
   const app = document.getElementById('app');
   const rect = app.getBoundingClientRect();
   const aspect = W / H;
   let cw = rect.width - 4;
   let ch = cw / aspect;
-  if (ch > window.innerHeight * 0.65) {
-    ch = window.innerHeight * 0.65;
+  if (ch > window.innerHeight * 0.7) {
+    ch = window.innerHeight * 0.7;
     cw = ch * aspect;
   }
   canvas.style.width = cw + 'px';
@@ -1262,45 +1000,42 @@ function resizeCanvas() {
 }
 window.addEventListener('resize', resizeCanvas);
 
-// --- Init ---
+// ============================================================
+// INIT
+// ============================================================
 function init() {
   resizeCanvas();
-  state.level = 0;
-  resetLevel();
+  generateTerrain();
+  generateWind();
+  placePlayers();
 
-  // Grid button initial state
-  document.querySelector('[data-tool="grid"]').classList.toggle('active', state.gridOn);
+  state.currentPlayer = Math.random() < 0.5 ? 1 : 2;
+  state.p1.angle = Math.round((45 + (Math.random() - 0.5) * 20) * 2) / 2;
+  state.p1.speed = Math.round(45 + Math.random() * 15);
+  state.p2.angle = Math.round((45 + (Math.random() - 0.5) * 20) * 2) / 2;
+  state.p2.speed = Math.round(45 + Math.random() * 15);
 
-  // Intro message
+  const p = state.currentPlayer === 1 ? state.p1 : state.p2;
+  document.getElementById('angle-slider').value = p.angle;
+  document.getElementById('angle-display').textContent = p.angle + '°';
+  document.getElementById('speed-slider').value = p.speed;
+  document.getElementById('speed-display').textContent = p.speed;
+
+  updateTurnDisplay();
+  render();
+  document.getElementById('history').style.display = 'block';
+
+  document.getElementById('geo-help').style.display = 'block';
+
   setTimeout(() => {
-    showMessage('🎯 Adjust the ANGLE and POWDER, then press FIRE (or Space) to shoot!');
-  }, 500);
-}
+    showMessage(`🎯 Player ${state.currentPlayer} — set your ANGLE and SPEED, then FIRE!`);
+  }, 300);
 
-// --- Game Loop (for animation) ---
-let animFrame = null;
-
-function gameLoop() {
-  if (state.phase === 'firing') {
-    render();
-    if (state.shell) {
-      // Re-draw explosion on impact
-      if (state.shell.hitTarget) {
-        drawExplosion(state.shell.impactX, state.shell.impactY);
-      } else {
-        drawExplosion(state.shell.impactX, state.shell.impactY);
-      }
-    }
-  }
-  animFrame = requestAnimationFrame(gameLoop);
+  console.log('🎯 Angle of Attack loaded!');
+  console.log('↑↓=Angle  ←→=Speed  Enter/Space=Fire');
 }
 
 init();
-gameLoop();
-
-console.log('🎯 Angle of Attack v1.0 loaded!');
-console.log('Controls: ↑↓=Angle, ←→=Powder, Space=Fire');
-console.log('Tools: R=Ruler, P=Protractor, G=Grid, C=Clear, H=Hint');
 </script>
 </body>
 </html>
